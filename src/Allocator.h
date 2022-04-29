@@ -1,21 +1,16 @@
 #pragma once
+#include <cassert>
 #include "Node.h"
 
 class Allocator
 {
 public:
-	Allocator() = default;
-	Allocator(int value);
-	// copy constr? & =
-	~Allocator();
-
-	Node* add_node(int value);
-	int find_node(int value);
+	Node* allocate(int _value, Node* _parent = nullptr, Colour _colour = Colour::RED);
+	void deAllocate(Node* _node);
 	int getCurrentlyAllocated() const;
 
 private:
 	void clear(Node* _node);
 
-	Node* node = nullptr;
 	int allocated = 0;
 };

@@ -7,7 +7,7 @@ project ("RedBlackTree")
 
 include_directories(src)
 
-add_library(RBTree STATIC src/RedBlackTree.cpp src/Node.cpp src/Allocator.cpp)
+add_library(RBTree STATIC src/RedBlackTree.cpp  src/Allocator.cpp)
 
 add_subdirectory(lib/Catch2)
 
