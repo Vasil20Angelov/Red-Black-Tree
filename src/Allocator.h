@@ -6,11 +6,11 @@ class Allocator
 {
 public:
 	Node* allocate(int _value, Node* _parent = nullptr, Colour _colour = Colour::RED);
-	void deAllocate(Node* _node);
-	int getCurrentlyAllocated() const;
+	void deAllocate(Node*& _node);
+	size_t getCurrentlyAllocated() const;
 
 private:
-	void clear(Node* _node);
+	void clear(Node*& _node);
 
-	int allocated = 0;
+	size_t allocated = 0;
 };

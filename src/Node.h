@@ -10,7 +10,7 @@ struct Node {
 
 	Node() = default;
 	Node(int _value) : value(_value) {};
-	Node(int _value, Node* _parent, Colour _colour = Colour::RED) : value(_value), parent(_parent), colour(_colour) 
+	Node(int _value, Node*& _parent, Colour _colour = Colour::RED) : value(_value), parent(_parent), colour(_colour) 
 	{
 		if (_parent) {
 			if (_value < _parent->value)
@@ -20,11 +20,23 @@ struct Node {
 		}
 	};
 
-	bool operator== (const Node* other) { return this->value == other->value; }
+	bool operator==(const Node*& other) { return this->value == other->value; }
 
+	Node* getUncle() const 
+	{ 
+		Node* grandP = parent->parent;
+		if (parent->isLeftChild())
+			return grandP->right;
+
+		return grandP->left;
+	}
 	inline bool hasRightChild() const { return right != nullptr; }
 	inline bool hasLeftChild()  const { return left  != nullptr; }
 	inline bool isLeaf()	    const { return right == nullptr && left == nullptr; }
+	inline bool isLeftChild()   const { return this == parent->left; }
+	inline bool isRightChild()	const { return this == parent->right; }
+	inline bool isRedColoured()	const { return this != nullptr && colour == Colour::RED; }
+	inline bool isUncleRed()	const { return getUncle()->isRedColoured(); }
 
 
 	// Data members

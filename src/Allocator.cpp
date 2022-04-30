@@ -14,17 +14,17 @@ Node* Allocator::allocate(int _value, Node* _parent, Colour _colour)
 	return newNode;
 }
 
-void Allocator::deAllocate(Node* _node)
+void Allocator::deAllocate(Node*& _node)
 {
 	clear(_node);
 }
 
-int Allocator::getCurrentlyAllocated() const
+size_t Allocator::getCurrentlyAllocated() const
 {
 	return allocated;
 }
 
-void Allocator::clear(Node* _node)
+void Allocator::clear(Node*& _node)
 {
 	if (_node == nullptr)
 		return;
@@ -32,14 +32,18 @@ void Allocator::clear(Node* _node)
 	clear(_node->left);
 	clear(_node->right);
 
-	if (_node->parent) {
-		if (_node->value < _node->parent->value)
-			_node->parent->left = nullptr;
-		else
-			_node->parent->right = nullptr;
-	}
+	Node* temp = _node->parent;
+	int value = _node->value;
 
 	delete _node;
 	_node = nullptr;
+
+	if (temp) {
+		if (value < temp->value)
+			temp->left = nullptr;
+		else
+			temp->right = nullptr;
+	}
+
 	--allocated;
 }

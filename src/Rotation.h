@@ -11,10 +11,10 @@ public:
 	* 
 	* The rotation is performed when there are 2 right-right connections
 	* 
-	* 	a						b
-	*	 \					   / \
-	*	  b			=>		  a   c
-	*	   \
+	* 	a                       b
+	*	 \(right)              / \
+	*	  b           =>      a   c
+	*	   \(right)
 	*	    c
 	* 
 	*/
@@ -37,10 +37,10 @@ public:
 	*
 	* The rotation is performed when there are 2 left-left connections
 	* 
-	* 		a						b
-	*	   /					   / \
-	*	  b			=>		      c   a
-	*	 /
+	*       a                       b
+	*      /(left)                 / \
+	*     b            =>         c   a
+	*    /(left)
 	*   c
 	*
 	*/
@@ -64,10 +64,10 @@ public:
 	*
 	* The rotation is performed when there are left-right connections
 	*
-	* 		a							c
-	*	   /(left)					   / \
-	*	  b					=>	      b   a
-	*	   \(right)
+	*       a                           c
+	*      /(left)                     / \
+	*     b                =>         b   a
+	*      \(right)
 	*       c
 	*
 	*/
@@ -94,10 +94,10 @@ public:
 	*
 	* The rotation is performed when there are right-left connections
 	*
-	* 		a                           c
-	*		 \(right)				   / \
-	*		  b				=>		  a   b
-	*		 /(left)		
+	*       a                           c
+	*        \(right)                  / \
+	*         b             =>        a   b
+	*        /(left)		
 	*       c
 	*
 	*/
