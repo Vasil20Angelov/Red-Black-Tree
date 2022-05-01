@@ -7,7 +7,7 @@ public:
 
 	/**
 	* \brief Makes a left rotation
-	* \param The node from where the rotation begins
+	* \param The middle node of the connection we want to rotate
 	* 
 	* The rotation is performed when there are 2 right-right connections
 	* 
@@ -18,22 +18,22 @@ public:
 	*	    c
 	* 
 	*/
-	static void left(Node* c)
+	static void left(Node* b)
 	{
-		Node* a = c->parent->parent;
-		changeParentConnection(a, c);
+		Node* a = b->parent;
+		changeParentConnection(a, b);
 
 		// If b has a left child it should be moved as a right child of a
-		a->right = c->parent->left;
+		a->right = b->left;
 		if (a->right)
 			a->right->parent = a;
 
-		c->parent->left = a;
+		b->left = a;
 	}
 
 	/**
 	* \brief Makes a right rotation
-	* \param The node from where the rotation begins
+	* \param The middle node of the connection we want to rotate
 	*
 	* The rotation is performed when there are 2 left-left connections
 	* 
@@ -44,23 +44,23 @@ public:
 	*   c
 	*
 	*/
-	static void right(Node* c)
+	static void right(Node* b)
 	{
-		Node* a = c->parent->parent;
-		changeParentConnection(a, c);
+		Node* a = b->parent;
+		changeParentConnection(a, b);
 
 		// If b has a right child it should be moved as a left child of a
-		a->left = c->parent->right;
+		a->left = b->right;
 		if (a->left)
 			a->left->parent = a;
 
-		c->parent->right = a;
+		b->right = a;
 	}
 
 
 	/**
 	* \brief Makes a left-right rotation
-	* \param The node from where the rotation begins
+	* \param The middle node of the connection we want to rotate
 	*
 	* The rotation is performed when there are left-right connections
 	*
@@ -71,9 +71,9 @@ public:
 	*       c
 	*
 	*/
-	static void leftRight(Node* c)
+	static void leftRight(Node* b)
 	{
-		Node* b = c->parent;
+		Node* c = b->right;
 		b->parent->left = c;
 		c->parent = b->parent;
 
@@ -85,12 +85,12 @@ public:
 		c->left = b;
 		b->parent = c;
 
-		right(b);
+		right(c);
 	}
 
 	/**
 	* \brief Makes a right-left rotation
-	* \param The node from where the rotation begins
+	* \param The middle node of the connection we want to rotate
 	*
 	* The rotation is performed when there are right-left connections
 	*
@@ -101,9 +101,9 @@ public:
 	*       c
 	*
 	*/
-	static void rightLeft(Node* c)
+	static void rightLeft(Node* b)
 	{
-		Node* b = c->parent;
+		Node* c = b->left;
 		b->parent->right = c;
 		c->parent = b->parent;
 
@@ -115,7 +115,7 @@ public:
 		c->right = b;
 		b->parent = c;
 
-		left(b);
+		left(c);
 	}
 
 private:
@@ -126,17 +126,17 @@ private:
 	* The child of the parent of a should be changed from a to c and the parent of c should become the parent of a,
 	* while the new parent of a should be c
 	*/
-	static void changeParentConnection(Node* a, Node* c)
+	static void changeParentConnection(Node* a, Node* b)
 	{
 		Node* aPar = a->parent;
 		if (aPar) {
 			if (aPar->left == a)
-				aPar->left = c->parent;
+				aPar->left = b;
 			else
-				aPar->right = c->parent;
+				aPar->right = b;
 		}
 
-		c->parent->parent = aPar;
-		a->parent = c->parent;
+		b->parent = aPar;
+		a->parent = b;
 	}
 };

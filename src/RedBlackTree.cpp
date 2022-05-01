@@ -22,7 +22,7 @@ void RBT<Alloc>::insert(int _value)
 {
 	Node* newNode = Operation::insert(root, allocator, _value);
 	if (newNode && newNode != root)
-		Operation::fix(newNode, root);
+		Operation::fixInsertion(newNode, root);
 }
 
 template<class Alloc>

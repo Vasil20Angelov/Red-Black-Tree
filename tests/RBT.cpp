@@ -1,9 +1,10 @@
 #include "catch2/catch_all.hpp"
+
+#include "Node.h"
 #include "Allocator.h"
-#include "RedBlackTree.h"
 #include "Rotation.h"
 #include "Operations.h"
-#include "Node.h"
+#include "RedBlackTree.h"
 
 Node* findRoot(Node* _node)
 {
@@ -11,6 +12,30 @@ Node* findRoot(Node* _node)
 		return findRoot(_node->parent);
 
 	return _node;
+}
+
+void createTree(Node*& root, Allocator& alc)
+{
+	Operation::insert(root, alc, 10);
+	Operation::insert(root, alc, 20);
+	Operation::insert(root, alc, 5);
+	Node* lastAdded = Operation::insert(root, alc, 25);
+	Operation::fixInsertion(lastAdded, root);
+	lastAdded = Operation::insert(root, alc, 30);
+	Operation::fixInsertion(lastAdded, root);
+	Operation::insert(root, alc, 3);
+	lastAdded = Operation::insert(root, alc, 1);
+	Operation::fixInsertion(lastAdded, root);
+	lastAdded = Operation::insert(root, alc, 35);
+	Operation::fixInsertion(lastAdded, root);
+	lastAdded = Operation::insert(root, alc, 32);
+	Operation::fixInsertion(lastAdded, root);
+	lastAdded = Operation::insert(root, alc, 27);
+	Operation::fixInsertion(lastAdded, root);
+	root = findRoot(root);
+	lastAdded = Operation::insert(root, alc, 29);
+	Operation::fixInsertion(lastAdded, root);
+	root = findRoot(root);
 }
 
 TEST_CASE("Allocator")
@@ -69,22 +94,22 @@ TEST_CASE("Allocator")
 TEST_CASE("Rotations")
 {
 	Allocator alc;
-	Node* root = alc.allocate(5);
+	Node* r = alc.allocate(5);
 	
 	SECTION("Left")
 	{
-		Node* a = alc.allocate(10, root);
+		Node* a = alc.allocate(10, r);
 		Node* b = alc.allocate(20, a);
 		Node* c = alc.allocate(30, b);
 		Node* d = alc.allocate(15, b);
 
-		Rotation::left(c);
+		Rotation::left(b);
 
 		REQUIRE(b->left == a);
 		REQUIRE(b->right == c);
 		REQUIRE(a->right == d);
-		REQUIRE(root->right == b);
-		REQUIRE(b->parent == root);
+		REQUIRE(r->right == b);
+		REQUIRE(b->parent == r);
 		REQUIRE(a->parent == b);
 		REQUIRE(c->parent == b);
 		REQUIRE(d->parent == a);
@@ -96,18 +121,18 @@ TEST_CASE("Rotations")
 
 	SECTION("Right")
 	{
-		Node* a = alc.allocate(4, root);
+		Node* a = alc.allocate(4, r);
 		Node* b = alc.allocate(2, a);
 		Node* c = alc.allocate(1, b);
 		Node* d = alc.allocate(3, b);
 
-		Rotation::right(c);
+		Rotation::right(b);
 
 		REQUIRE(b->left == c);
 		REQUIRE(b->right == a);
 		REQUIRE(a->left == d);
-		REQUIRE(root->left == b);
-		REQUIRE(b->parent == root);
+		REQUIRE(r->left == b);
+		REQUIRE(b->parent == r);
 		REQUIRE(a->parent == b);
 		REQUIRE(c->parent == b);
 		REQUIRE(d->parent == a);
@@ -119,18 +144,18 @@ TEST_CASE("Rotations")
 
 	SECTION("Left-Right")
 	{
-		Node* a = alc.allocate(4, root);
+		Node* a = alc.allocate(4, r);
 		Node* b = alc.allocate(1, a);
 		Node* c = alc.allocate(3, b);
 		Node* d = alc.allocate(2, c);
 
-		Rotation::leftRight(c);
+		Rotation::leftRight(b);
 
 		REQUIRE(c->left == b);
 		REQUIRE(c->right == a);
 		REQUIRE(b->right == d);
-		REQUIRE(root->left == c);
-		REQUIRE(c->parent == root);
+		REQUIRE(r->left == c);
+		REQUIRE(c->parent == r);
 		REQUIRE(a->parent == c);
 		REQUIRE(b->parent == c);
 		REQUIRE(d->parent == b);
@@ -142,18 +167,18 @@ TEST_CASE("Rotations")
 
 	SECTION("Right-Left")
 	{
-		Node* a = alc.allocate(6, root);
+		Node* a = alc.allocate(6, r);
 		Node* b = alc.allocate(9, a);
 		Node* c = alc.allocate(7, b);
 		Node* d = alc.allocate(8, c);
 
-		Rotation::rightLeft(c);
+		Rotation::rightLeft(b);
 
 		REQUIRE(c->left == a);
 		REQUIRE(c->right == b);
 		REQUIRE(b->left == d);
-		REQUIRE(root->right == c);
-		REQUIRE(c->parent == root);
+		REQUIRE(r->right == c);
+		REQUIRE(c->parent == r);
 		REQUIRE(a->parent == c);
 		REQUIRE(b->parent == c);
 		REQUIRE(d->parent == b);
@@ -162,6 +187,8 @@ TEST_CASE("Rotations")
 
 		alc.deAllocate(c);
 	}
+
+	alc.deAllocate(r);
 }
 
 TEST_CASE("Operations")
@@ -169,10 +196,9 @@ TEST_CASE("Operations")
 	Allocator alc;
 	Node* root = nullptr;
 	Node* lastAdded = nullptr;
-	SECTION("Insertion")
-	{
+	SECTION("Insert") {
 		Operation::insert(root, alc, 10);
-		SECTION("Empty tree")
+		SECTION("Inserting in empty tree")
 		{
 			REQUIRE(root->value == 10);
 			REQUIRE(root->isLeaf() == true);
@@ -189,7 +215,7 @@ TEST_CASE("Operations")
 		*          (R)5   20(R)
 		*/
 
-		SECTION("New nodes are placed correctly")
+		SECTION("Inserting new nodes are placed correctly")
 		{
 			REQUIRE(root->right->value == 20);
 			REQUIRE(root->left->value == 5);
@@ -199,7 +225,7 @@ TEST_CASE("Operations")
 		}
 
 		lastAdded = Operation::insert(root, alc, 25);
-		Operation::fix(lastAdded, root);
+		Operation::fixInsertion(lastAdded, root);
 
 		/* After fix:
 		*              10(B)
@@ -209,7 +235,7 @@ TEST_CASE("Operations")
 		*                   25(R)
 		*/
 
-		SECTION("Correctly recolouring the nodes")
+		SECTION("Inserting correctly recolours nodes when no rotations are needed")
 		{
 			REQUIRE(root->isRedColoured() == false);
 			REQUIRE(root->left->isRedColoured() == false);
@@ -218,181 +244,333 @@ TEST_CASE("Operations")
 			REQUIRE(lastAdded->value == 25);
 		}
 
-		SECTION("Proper rotation and recolouring is performed")
+		lastAdded = Operation::insert(root, alc, 30);
+		Operation::fixInsertion(lastAdded, root);
+
+		/* After fix:
+		*              10(B)
+		*              / \
+		*          (B)5   25(B)
+		*                 / \
+		*            (R)20   30(R)
+		*/
+
+		SECTION("Inserting performs Left rotation correctly")
 		{
-			lastAdded = Operation::insert(root, alc, 30);
-			Operation::fix(lastAdded, root);
-	
-			/* After fix:
-			*              10(B)
-			*              / \
-			*          (B)5   25(B)
-			*                 / \
-			*            (R)20   30(R)
-			*/
-
-			SECTION("Left rotation")
-			{
-				REQUIRE(lastAdded->isLeaf() == true);
-				REQUIRE(lastAdded->isRightChild() == true);
-				REQUIRE(lastAdded->isRedColoured() == true);
-				REQUIRE(lastAdded->parent->isRedColoured() == false);
-				REQUIRE(lastAdded->parent->left->isRedColoured() == true);
-			}
-			
-			Operation::insert(root, alc, 3);
-			lastAdded = Operation::insert(root, alc, 1);
-			Operation::fix(lastAdded, root);
-
-			/* After fix:
-			*               10B
-			*             /     \
-			*           3B       25B
-			*          /  \     /  \
-			*        1R   5R  20R   30R
-			*/
-
-			SECTION("Right rotation")
-			{
-				REQUIRE(lastAdded->isLeaf() == true);
-				REQUIRE(lastAdded->isLeftChild() == true);
-				REQUIRE(lastAdded->isRedColoured() == true);
-				REQUIRE(lastAdded->parent->isRedColoured() == false);
-				REQUIRE(lastAdded->parent->right->isRedColoured() == true);
-			}
-
-			lastAdded = Operation::insert(root, alc, 35);
-			Operation::fix(lastAdded, root);
-
-			/* After fix:
-			*               10B
-			*             /     \
-			*           3B       25R
-			*          /  \     /  \
-			*        1R   5R  20B   30B
-			*                         \
-			*                         35R
-			*/
-
-			SECTION("Recolour without rotation")
-			{
-				REQUIRE(lastAdded->isLeaf() == true);
-				REQUIRE(lastAdded->isRightChild() == true);
-				REQUIRE(lastAdded->isRedColoured() == true);
-				REQUIRE(lastAdded->parent->isRedColoured() == false);
-				REQUIRE(lastAdded->parent->parent->isRedColoured() == true);
-				REQUIRE(lastAdded->isUncleRed() == false);
-				REQUIRE(root->isRedColoured() == false);
-			}
-
-			lastAdded = Operation::insert(root, alc, 32);
-			Operation::fix(lastAdded, root);
-
-			/* After fix:
-			*               10B
-			*             /     \
-			*           3B       25R
-			*          /  \     /  \
-			*        1R   5R  20B   32B
-			*                      /  \
-			*                    30R   35R
-			*/
-
-			SECTION("Right-left rotation")
-			{
-				REQUIRE(lastAdded->left->value == 30);
-				REQUIRE(lastAdded->right->value == 35);
-				REQUIRE(lastAdded->left->isRedColoured() == true);
-				REQUIRE(lastAdded->right->isRedColoured() == true);
-				REQUIRE(lastAdded->parent->isRedColoured() == true);
-				REQUIRE(lastAdded->isRedColoured() == false);
-				REQUIRE(lastAdded->isRightChild() == true);
-			}
-
-			lastAdded = Operation::insert(root, alc, 27);
-			Operation::fix(lastAdded, root);
-			root = findRoot(root);
-
-			/* After fix:
-			*               25B
-			*             /     \
-			*           10R      32R
-			*          /  \      /  \
-			*        3B   20B  30B  35B
-			*       / \        /                                  
-			*      1R  5R     27R      
-			*                 
-			*/
-
-			SECTION("Red-uncle case performed followed by right rotation in the middle of the tree")
-			{
-				REQUIRE(root->value == 25);
-				REQUIRE(root->left->value == 10);
-				REQUIRE(root->right->value == 32);
-				REQUIRE(root->isRedColoured() == false);
-				REQUIRE(root->right->isRedColoured() == true);
-				REQUIRE(root->left->isRedColoured() == true);
-				REQUIRE(root->left->right->isRedColoured() == false);
-				REQUIRE(lastAdded->parent->value == 30);
-				REQUIRE(lastAdded->parent->isRedColoured() == false);
-				REQUIRE(lastAdded->isUncleRed() == false);
-			}
-
-			lastAdded = Operation::insert(root, alc, 29);
-			Operation::fix(lastAdded, root);
-			root = findRoot(root);
-
-			/* After fix:
-			*               25B
-			*             /     \
-			*           10R      32R
-			*          /  \      /  \
-			*        3B   20B  29B  35B
-			*       / \        /  \
-			*      1R  5R    27R  30R
-			*
-			*/
-
-			SECTION("Left-right rotation")
-			{
-				REQUIRE(lastAdded->isRedColoured() == false);
-				REQUIRE(lastAdded->parent->value == 32);
-				REQUIRE(lastAdded->parent->isRedColoured() == true);
-				REQUIRE(lastAdded->left->isRedColoured() == true);
-				REQUIRE(lastAdded->right->isRedColoured() == true);
-			}
-
-			SECTION("Adding a node with the same value as other node in the tree throws an exception")
-			{
-				size_t allocated = alc.getCurrentlyAllocated();
-				REQUIRE_THROWS_AS(Operation::insert(root, alc, 10), std::logic_error);
-				REQUIRE_THROWS_AS(Operation::insert(root, alc, 27), std::logic_error);
-				REQUIRE(allocated == alc.getCurrentlyAllocated());
-			}
-
-			alc.deAllocate(root);
-			REQUIRE(alc.getCurrentlyAllocated() == 0);
+			REQUIRE(lastAdded->isLeaf() == true);
+			REQUIRE(lastAdded->isRightChild() == true);
+			REQUIRE(lastAdded->isRedColoured() == true);
+			REQUIRE(lastAdded->parent->isRedColoured() == false);
+			REQUIRE(lastAdded->parent->left->isRedColoured() == true);
 		}
-	}
 
-	SECTION("Searching")
-	{
-		Operation::insert(root, alc, 10);
-		Operation::insert(root, alc, 25);
-		Operation::insert(root, alc, 14);
 		Operation::insert(root, alc, 3);
-		Operation::insert(root, alc, 8);
-		Operation::insert(root, alc, 53);
-		Operation::insert(root, alc, 22);
+		lastAdded = Operation::insert(root, alc, 1);
+		Operation::fixInsertion(lastAdded, root);
 
-		REQUIRE(Operation::contains(root, 10) == true);
-		REQUIRE(Operation::contains(root, 22) == true);
-		REQUIRE(Operation::contains(root, 3) == true);
-		REQUIRE(Operation::contains(root, 1) == false);
-		REQUIRE(Operation::contains(root, 15) == false);
+		/* After fix:
+		*               10B
+		*             /     \
+		*           3B       25B
+		*          /  \     /  \
+		*        1R   5R  20R   30R
+		*/
+
+		SECTION("Inserting performs Right rotation correctly")
+		{
+			REQUIRE(lastAdded->isLeaf() == true);
+			REQUIRE(lastAdded->isLeftChild() == true);
+			REQUIRE(lastAdded->isRedColoured() == true);
+			REQUIRE(lastAdded->parent->isRedColoured() == false);
+			REQUIRE(lastAdded->parent->right->isRedColoured() == true);
+		}
+
+		lastAdded = Operation::insert(root, alc, 35);
+		Operation::fixInsertion(lastAdded, root);
+
+		/* After fix:
+		*               10B
+		*             /     \
+		*           3B       25R
+		*          /  \     /  \
+		*        1R   5R  20B   30B
+		*                         \
+		*                         35R
+		*/
+
+		SECTION("Inserting recolours recursively without rotation")
+		{
+			REQUIRE(lastAdded->isLeaf() == true);
+			REQUIRE(lastAdded->isRightChild() == true);
+			REQUIRE(lastAdded->isRedColoured() == true);
+			REQUIRE(lastAdded->parent->isRedColoured() == false);
+			REQUIRE(lastAdded->parent->parent->isRedColoured() == true);
+			REQUIRE(lastAdded->isUncleRed() == false);
+			REQUIRE(root->isRedColoured() == false);
+		}
+
+		lastAdded = Operation::insert(root, alc, 32);
+		Operation::fixInsertion(lastAdded, root);
+
+		/* After fix:
+		*               10B
+		*             /     \
+		*           3B       25R
+		*          /  \     /  \
+		*        1R   5R  20B   32B
+		*                      /  \
+		*                    30R   35R
+		*/
+
+		SECTION("Inserting performs Right-left rotation correctly")
+		{
+			REQUIRE(lastAdded->left->value == 30);
+			REQUIRE(lastAdded->right->value == 35);
+			REQUIRE(lastAdded->left->isRedColoured() == true);
+			REQUIRE(lastAdded->right->isRedColoured() == true);
+			REQUIRE(lastAdded->parent->isRedColoured() == true);
+			REQUIRE(lastAdded->isRedColoured() == false);
+			REQUIRE(lastAdded->isRightChild() == true);
+		}
+
+		lastAdded = Operation::insert(root, alc, 27);
+		Operation::fixInsertion(lastAdded, root);
+		root = findRoot(root);
+
+		/* After fix:
+		*               25B
+		*             /     \
+		*           10R      32R
+		*          /  \      /  \
+		*        3B   20B  30B  35B
+		*       / \        /
+		*      1R  5R     27R
+		*
+		*/
+
+		SECTION("Inserting performs Red-uncle case followed by right rotation in the middle of the tree")
+		{
+			REQUIRE(root->value == 25);
+			REQUIRE(root->left->value == 10);
+			REQUIRE(root->right->value == 32);
+			REQUIRE(root->isRedColoured() == false);
+			REQUIRE(root->right->isRedColoured() == true);
+			REQUIRE(root->left->isRedColoured() == true);
+			REQUIRE(root->left->right->isRedColoured() == false);
+			REQUIRE(lastAdded->parent->value == 30);
+			REQUIRE(lastAdded->parent->isRedColoured() == false);
+			REQUIRE(lastAdded->isUncleRed() == false);
+		}
+
+		lastAdded = Operation::insert(root, alc, 29);
+		Operation::fixInsertion(lastAdded, root);
+		root = findRoot(root);
+
+		/* After fix:
+		*               25B
+		*             /     \
+		*           10R      32R
+		*          /  \      /  \
+		*        3B   20B  29B  35B
+		*       / \        /  \
+		*      1R  5R    27R  30R
+		*
+		*/
+
+		SECTION("Inserting performs Left-right rotation correctly")
+		{
+			REQUIRE(lastAdded->isRedColoured() == false);
+			REQUIRE(lastAdded->parent->value == 32);
+			REQUIRE(lastAdded->parent->isRedColoured() == true);
+			REQUIRE(lastAdded->left->isRedColoured() == true);
+			REQUIRE(lastAdded->right->isRedColoured() == true);
+		}
+
+		SECTION("Adding a node with the same value as other node in the tree throws an exception")
+		{
+			size_t allocated = alc.getCurrentlyAllocated();
+			REQUIRE_THROWS_AS(Operation::insert(root, alc, 10), std::logic_error);
+			REQUIRE_THROWS_AS(Operation::insert(root, alc, 27), std::logic_error);
+			REQUIRE(allocated == alc.getCurrentlyAllocated());
+		}
 
 		alc.deAllocate(root);
 		REQUIRE(alc.getCurrentlyAllocated() == 0);
 	}
 
+	createTree(root, alc);
+	SECTION("Searching")
+	{
+		REQUIRE(Operation::contains(root, 1) == true);
+		REQUIRE(Operation::contains(root, 10) == true);
+		REQUIRE(Operation::contains(root, 25) == true);
+		REQUIRE(Operation::contains(root, 29) == true);
+		REQUIRE(Operation::contains(root, 8) == false);
+		REQUIRE(Operation::contains(root, 28) == false);
+		REQUIRE(Operation::contains(root, 36) == false);
+	}
+
+	SECTION("Erasing")
+	{
+		SECTION("Trying to erase non-existing node throws an exception")
+		{
+			size_t allocated = alc.getCurrentlyAllocated();
+			REQUIRE_THROWS_AS(Operation::erase(root, alc, 50), std::logic_error);
+			REQUIRE(allocated == alc.getCurrentlyAllocated());
+		}
+
+		Operation::erase(root, alc, 1);
+
+		/* After erase:
+		*               25B
+		*             /     \
+		*           10R      32R
+		*          /  \      /  \
+		*        3B   20B  29B  35B
+		*         \        /  \
+		*          5R    27R  30R
+		*/
+
+		SECTION("Removes a red leaf without changing anthing else")
+		{
+			Node* temp = root->left->left;
+			REQUIRE(temp->value == 3);
+			REQUIRE(temp->isRedColoured() == false);
+			REQUIRE(temp->left == nullptr);
+			REQUIRE(temp->right->isRedColoured() == true);
+		}
+
+		Operation::erase(root, alc, 25);
+		Operation::erase(root, alc, 3);
+
+		/* After erase:
+		*               27B
+		*             /     \
+		*           10R      32R
+		*          /  \      /  \
+		*        5B   20B  29B  35B
+		*                    \
+		*                    30R
+		*/
+
+		SECTION("Swaps the value with the smallest element which is bigger than the node we want to delete and removes it as it is red")
+		{
+			REQUIRE(root->value == 27);
+			REQUIRE(root->isRedColoured() == false);
+			REQUIRE(root->left->isRedColoured() == true);
+			REQUIRE(root->right->isRedColoured() == true);
+			REQUIRE(root->left->isRedColoured() == true);
+			REQUIRE(root->right->right->isRedColoured() == false);
+			REQUIRE(root->right->left->isRedColoured() == false);
+			REQUIRE(root->left->right->isRedColoured() == false);
+			REQUIRE(root->left->left->isRedColoured() == false);
+			REQUIRE(root->left->left->value == 5);
+			REQUIRE(root->left->left->isLeaf() == true);
+			REQUIRE(root->right->left->value == 29);
+			REQUIRE(root->right->left->hasLeftChild() == false);
+			REQUIRE(root->right->left->hasRightChild() == true);
+		}
+
+		Operation::erase(root, alc, 27);
+
+		/* After erase:
+		*               29B
+		*             /     \
+		*           10R      32R
+		*          /  \      /  \
+		*        5B   20B  30B  35B                 
+		*/
+
+		SECTION("Double swap performed")
+		{
+			REQUIRE(root->value == 29);
+			REQUIRE(root->isRedColoured() == false);
+			REQUIRE(root->left->isRedColoured() == true);
+			REQUIRE(root->right->isRedColoured() == true);
+			REQUIRE(root->right->left->isRedColoured() == false);
+			REQUIRE(root->right->left->value == 30);
+			REQUIRE(root->right->left->isLeaf() == true);
+		}
+
+		Operation::erase(root, alc, 5);
+
+		/* After erase:
+		*               29B
+		*             /     \
+		*           10B      32R
+		*             \      /  \
+		*             20R  30B  35B
+		*/
+
+		SECTION("Sibling has 2 black children (nulls)")
+		{
+			REQUIRE(root->value == 29);
+			REQUIRE(root->isRedColoured() == false);
+			REQUIRE(root->left->isRedColoured() == false);
+			REQUIRE(root->right->isRedColoured() == true);
+			REQUIRE(root->left->right->isRedColoured() == true);
+			REQUIRE(root->left->hasLeftChild() == false);
+			REQUIRE(root->left->value == 10);
+			REQUIRE(root->left->right->value == 20);
+		}
+
+		Operation::erase(root, alc, 20); // removes 20 without any recolourings and rotations
+		Operation::erase(root, alc, 10);
+		root = findRoot(root);
+
+		/* After erase:
+		*               32B
+		*              /   \
+		*            29B    35B
+		*              \
+		*               30R
+		*/
+
+		SECTION("Red sibling case, followed by 2 black children case")
+		{
+			REQUIRE(root->value == 32);
+			REQUIRE(root->left->value == 29);
+			REQUIRE(root->right->value == 35);
+			REQUIRE(root->left->right->value == 30);
+			REQUIRE(root->isRedColoured() == false);
+			REQUIRE(root->left->isRedColoured() == false);
+			REQUIRE(root->right->isRedColoured() == false);
+			REQUIRE(root->left->right->isRedColoured() == true);
+			REQUIRE(root->left->hasLeftChild() == false);
+		}
+
+		Operation::erase(root, alc, 35);
+		root = findRoot(root);
+
+		/* After erase:
+		*               30B
+		*              /   \
+		*            29B    32B
+		*/
+
+		SECTION("'Near child is red' case, followed by 'Far child is red' case")
+		{
+			REQUIRE(root->value == 30);
+			REQUIRE(root->left->value == 29);
+			REQUIRE(root->right->value == 32);
+			REQUIRE(root->isRedColoured() == false);
+			REQUIRE(root->left->isRedColoured() == false);
+			REQUIRE(root->right->isRedColoured() == false);
+			REQUIRE(root->left->isLeaf() == true);
+			REQUIRE(root->right->isLeaf() == true);
+		}
+
+		Operation::erase(root, alc, 30);
+		Operation::erase(root, alc, 32);
+
+		REQUIRE(root->value == 29);
+		REQUIRE(root->isLeaf() == true);
+		REQUIRE(root->isRedColoured() == false);
+
+		Operation::erase(root, alc, 29);
+		REQUIRE(root == nullptr);
+	}
+
+	alc.deAllocate(root);
+	REQUIRE(alc.getCurrentlyAllocated() == 0);
 }

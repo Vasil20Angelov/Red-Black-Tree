@@ -21,6 +21,7 @@ struct Node {
 	};
 
 	bool operator==(const Node*& other) { return this->value == other->value; }
+	bool operator!=(const Node*& other) { return !(this == other); }
 
 	Node* getUncle() const 
 	{ 
@@ -30,6 +31,8 @@ struct Node {
 
 		return grandP->left;
 	}
+
+	inline Node* getSibling()   const { return isLeftChild() ? parent->right : parent->left; }
 	inline bool hasRightChild() const { return right != nullptr; }
 	inline bool hasLeftChild()  const { return left  != nullptr; }
 	inline bool isLeaf()	    const { return right == nullptr && left == nullptr; }
