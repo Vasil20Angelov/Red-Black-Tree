@@ -32,18 +32,22 @@ void Allocator::clear(Node*& _node)
 	clear(_node->left);
 	clear(_node->right);
 
-	Node* temp = _node->parent;
-	int value = _node->value;
+	bool deletingLeft;
+	Node* parent = _node->parent;
 
-	delete _node;
-	_node = nullptr;
-
-	if (temp) {
-		if (value < temp->value)
-			temp->left = nullptr;
-		else
-			temp->right = nullptr;
+	if (parent) {
+		deletingLeft = _node->isLeftChild();
 	}
 
-	--allocated;
+	if (_node) {
+		delete _node;
+		_node = nullptr;
+		--allocated;
+		assert(allocated >= 0);
+	}
+	// Log deleting
+
+	if (parent) {
+		parent->nullChild(deletingLeft);
+	}
 }

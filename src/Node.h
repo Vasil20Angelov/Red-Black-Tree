@@ -23,6 +23,14 @@ struct Node {
 	bool operator==(const Node*& other) { return this->value == other->value; }
 	bool operator!=(const Node*& other) { return !(this == other); }
 
+	void nullChild(bool leftChild)
+	{
+		if (leftChild)
+			left = nullptr;
+		else
+			right = nullptr;
+	}
+
 	Node* getUncle() const 
 	{ 
 		Node* grandP = parent->parent;

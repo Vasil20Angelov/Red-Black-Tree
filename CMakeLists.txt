@@ -9,8 +9,13 @@ include_directories(src)
 
 add_library(RBTree STATIC src/RedBlackTree.cpp src/Allocator.cpp src/Operations.cpp)
 
+add_subdirectory(lib/spdlog)
 add_subdirectory(lib/Catch2)
 
 add_executable(Tests)
 target_sources(Tests PRIVATE tests/RBT.cpp)
-target_link_libraries(Tests PUBLIC RBTree Catch2::Catch2WithMain)
+target_link_libraries(Tests PUBLIC RBTree Catch2::Catch2WithMain spdlog::spdlog)
+
+
+set(DOCUMENTATION_OUTPUT_PATH "${CMAKE_BINARY_DIR}/docs" CACHE FILEPATH "Specifies where to generate the documentation")
+include_directories(docs)

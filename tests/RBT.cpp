@@ -4,15 +4,7 @@
 #include "Allocator.h"
 #include "Rotation.h"
 #include "Operations.h"
-#include "RedBlackTree.h"
-
-Node* findRoot(Node* _node)
-{
-	if (_node->parent)
-		return findRoot(_node->parent);
-
-	return _node;
-}
+#include "RedBlackTree.cpp"
 
 void createTree(Node*& root, Allocator& alc)
 {
@@ -32,10 +24,8 @@ void createTree(Node*& root, Allocator& alc)
 	Operation::fixInsertion(lastAdded, root);
 	lastAdded = Operation::insert(root, alc, 27);
 	Operation::fixInsertion(lastAdded, root);
-	root = findRoot(root);
 	lastAdded = Operation::insert(root, alc, 29);
 	Operation::fixInsertion(lastAdded, root);
-	root = findRoot(root);
 }
 
 TEST_CASE("Allocator")
@@ -75,7 +65,7 @@ TEST_CASE("Allocator")
 
 	SECTION("Correctly deletes a node")
 	{
-		Node* e = alc.allocate(50, c);
+		Node* e = alc.allocate(18, c);
 		alc.deAllocate(e);
 
 		REQUIRE(e == nullptr);
@@ -335,8 +325,7 @@ TEST_CASE("Operations")
 
 		lastAdded = Operation::insert(root, alc, 27);
 		Operation::fixInsertion(lastAdded, root);
-		root = findRoot(root);
-
+		
 		/* After fix:
 		*               25B
 		*             /     \
@@ -363,8 +352,7 @@ TEST_CASE("Operations")
 		}
 
 		lastAdded = Operation::insert(root, alc, 29);
-		Operation::fixInsertion(lastAdded, root);
-		root = findRoot(root);
+		Operation::fixInsertion(lastAdded, root);		
 
 		/* After fix:
 		*               25B
@@ -408,6 +396,29 @@ TEST_CASE("Operations")
 		REQUIRE(Operation::contains(root, 8) == false);
 		REQUIRE(Operation::contains(root, 28) == false);
 		REQUIRE(Operation::contains(root, 36) == false);
+	}
+
+	SECTION("Utilities")
+	{
+		SECTION("Find max")
+		{
+			REQUIRE(Operation::max(root) == 35);
+			REQUIRE(Operation::max(root->left) == 20);
+		}
+
+		SECTION("Find min")
+		{
+			REQUIRE(Operation::min(root) == 1);
+			REQUIRE(Operation::min(root->right) == 27);
+		}
+
+		SECTION("Find height")
+		{
+			REQUIRE(Operation::findHeight(root) == 4);
+			REQUIRE(Operation::findHeight(root->left) == 3);
+			REQUIRE(Operation::findHeight(root->left->right) == 1);
+			REQUIRE(Operation::findHeight(root->left->right->right) == 0);
+		}
 	}
 
 	SECTION("Erasing")
@@ -516,8 +527,7 @@ TEST_CASE("Operations")
 
 		Operation::erase(root, alc, 20); // removes 20 without any recolourings and rotations
 		Operation::erase(root, alc, 10);
-		root = findRoot(root);
-
+		
 		/* After erase:
 		*               32B
 		*              /   \
@@ -539,8 +549,7 @@ TEST_CASE("Operations")
 			REQUIRE(root->left->hasLeftChild() == false);
 		}
 
-		Operation::erase(root, alc, 35);
-		root = findRoot(root);
+		Operation::erase(root, alc, 35);		
 
 		/* After erase:
 		*               30B
@@ -573,4 +582,13 @@ TEST_CASE("Operations")
 
 	alc.deAllocate(root);
 	REQUIRE(alc.getCurrentlyAllocated() == 0);
+}
+
+TEST_CASE("RBT")
+{
+	RBT tree(4);
+	tree.insert(3);
+	tree.insert(2);
+
+	REQUIRE(tree.getHeight() == 2);
 }

@@ -20,7 +20,7 @@ Node* Operation::insert(Node*& root, Allocator& allocator, int _value)
 	return newNode;
 }
 
-void Operation::fixInsertion(Node* current, const Node* root)
+void Operation::fixInsertion(Node* current, Node*& root)
 {
 	Node* parent = current->parent;
 	while (parent->isRedColoured() && current->isRedColoured())
@@ -28,6 +28,8 @@ void Operation::fixInsertion(Node* current, const Node* root)
 		Node* uncleNode = current->getUncle();
 		if (!uncleNode->isRedColoured()) {
 			Node* subRoot = rotate(current);
+			if (root->parent)
+				root = root->parent;
 
 			if (subRoot == parent)  // LL or RR rotation has been performed
 				recolour(parent, current);
@@ -125,6 +127,24 @@ void Operation::farChildIsRed(Node*& sibling)
 	}
 }
 
+size_t Operation::findHeight(Node* root)
+{
+	if (root)
+		return 1 + std::max(findHeight(root->right), findHeight(root->left));
+
+	return 0;
+}
+
+int Operation::max(Node* root)
+{
+	return findMax(root)->value;
+}
+
+int Operation::min(Node* root)
+{
+	return findMin(root)->value;
+}
+
 void Operation::fixDeletion(Node*& root, Node*& toDel)
 {
 	Node* DB = toDel; // DB = Double black
@@ -151,40 +171,41 @@ void Operation::fixDeletion(Node*& root, Node*& toDel)
 		farChildIsRed(sibling);
 		break;
 	}
+
+	if (root->parent)
+		root = root->parent;
 }
 
 Node* Operation::replace(Node*& node)
 {
 	if (node->hasLeftChild() && !node->hasRightChild()) {
 		node->value = node->left->value;
-		node->left->value = node->value - 1;
 		if (!node->left->isLeaf())
 			return replace(node->left);
 
 		return node->left;
 	}
 
-	Node* minInLeft = min(node->right);
+	Node* minInLeft = findMin(node->right);
 	node->value = minInLeft->value;
-	minInLeft->value = node->value + 1;
 	if (minInLeft->hasRightChild())
 		return replace(minInLeft);
 
 	return minInLeft;
 }
 
-Node* Operation::max(Node* root)
+Node* Operation::findMax(Node* root)
 {
 	if (root->right)
-		return max(root->right);
+		return findMax(root->right);
 
 	return root;
 }
 
-Node* Operation::min(Node* root)
+Node* Operation::findMin(Node* root)
 {
 	if (root->left)
-		return min(root->left);
+		return findMin(root->left);
 
 	return root;
 }
