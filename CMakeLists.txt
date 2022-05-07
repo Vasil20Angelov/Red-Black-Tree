@@ -18,4 +18,4 @@ target_link_libraries(Tests PUBLIC RBTree Catch2::Catch2WithMain spdlog::spdlog)
 
 
 set(DOCUMENTATION_OUTPUT_PATH "${CMAKE_BINARY_DIR}/docs" CACHE FILEPATH "Specifies where to generate the documentation")
-include_directories(docs)
+add_subdirectory(docs)
