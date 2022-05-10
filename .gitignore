@@ -398,12 +398,12 @@ FodyWeavers.xsd
 *.sln.iml
 
 # Documentation folder
-Documentation/
-docs/
-!./docs/Doxyfile.in
-!./docs/CMakeLists.txt
-!./Documentation/Doxyfile.in
-!./Documentation/Doxyfile.in
+Documentation/*
+!Documentation/Doxyfile.in
+!Documentation/CMakeLists.txt
+docs/*
+!docs/Doxyfile.in
+!docs/CMakeLists.txt
 
 # Build folders
 out/
