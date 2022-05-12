@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 enum struct Colour : bool
 {
@@ -6,8 +7,9 @@ enum struct Colour : bool
 	BLACK
 };
 
-struct Node {
+class Node {
 
+public:
 	Node() = default;
 	Node(int _value) : value(_value) {};
 	Node(int _value, Node*& _parent, Colour _colour = Colour::RED) : value(_value), parent(_parent), colour(_colour) 
@@ -20,8 +22,15 @@ struct Node {
 		}
 	};
 
-	bool operator==(const Node*& other) { return this->value == other->value; }
-	bool operator!=(const Node*& other) { return !(this == other); }
+	bool operator==(const Node*& other) const { return areSame(this, other); }
+	bool operator!=(const Node*& other) const { return !(this == other); }
+
+	std::vector<int> inOrderPrint() const
+	{
+		std::vector<int> vec;
+		inOrderPrintRec(this, vec);
+		return vec;
+	}
 
 	void nullChild(bool leftChild)
 	{
@@ -48,8 +57,31 @@ struct Node {
 	inline bool isRightChild()	const { return this == parent->right; }
 	inline bool isRedColoured()	const { return this != nullptr && colour == Colour::RED; }
 	inline bool isUncleRed()	const { return getUncle()->isRedColoured(); }
+	inline bool compare(const Node* other) const { return areSame(this, other); }
 
+private:
+	void inOrderPrintRec(const Node* node, std::vector<int>& vec) const
+	{
+		if (!node)
+			return;
 
+		inOrderPrintRec(node->left, vec);
+		vec.push_back(node->value);
+		inOrderPrintRec(node->right, vec);
+	}
+
+	bool areSame(const Node* node1, const Node* node2) const
+	{
+		if (!node1 && !node2)
+			return true;
+
+		if (node1 && node2 && node1->value == node2->value && node1->colour == node2->colour)
+			return areSame(node1->left, node2->left) && areSame(node1->right, node2->right);
+
+		return false;
+	}
+
+public:
 	// Data members
 	int value = 0;
 	Colour colour = Colour::BLACK;

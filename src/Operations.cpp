@@ -1,27 +1,31 @@
 #include "Operations.h"
 
-Node* Operation::insert(Node*& root, Allocator& allocator, int _value)
+Node* Operation::BSTinsert(Node*& root, Allocator& allocator, int _value, Colour colour)
 {
 	if (!root) {
 		root = allocator.allocate(_value, nullptr, Colour::BLACK);
 		return root;
 	}
-
+	
 	Node* parent = insertRec(_value, root);
-
+	
 	// If temp is nullptr then a node with that value is found (not allowing multiple nodes with the same value)
 	if (!parent) {
 		throw std::logic_error("Cannot add multiple nodes with the same value!\n");
 		return nullptr;
 	}
 
-	Node* newNode = allocator.allocate(_value, parent, Colour::RED);
+	Node* newNode = allocator.allocate(_value, parent, colour);
 
 	return newNode;
 }
 
-void Operation::fixInsertion(Node* current, Node*& root)
+void Operation::balancedInsert(Node*& root, Allocator& allocator, int _value)
 {
+	Node* current = BSTinsert(root, allocator, _value);
+	if (root == current)
+		return;
+
 	Node* parent = current->parent;
 	while (parent->isRedColoured() && current->isRedColoured())
 	{
@@ -41,7 +45,7 @@ void Operation::fixInsertion(Node* current, Node*& root)
 
 		uncleNode->colour = Colour::BLACK;
 		parent->colour = Colour::BLACK;
-		if (parent->parent == root)
+		if (parent->parent->compare(root))
 			break;
 
 		parent->parent->colour = Colour::RED;
@@ -222,17 +226,6 @@ Node* Operation::find(Node*& root, int key)
 		return find(root->right, key);
 
 	return root;
-
-	//Node*& temp = root;
-	//while (temp) {
-	//	if (temp->value > key)
-	//		temp = temp->left;
-	//	else if (temp->value < key)
-	//		temp = temp->right;
-	//	else
-	//	 break;
-	//}
-	//return temp;
 }
 
 void Operation::recolour(Node*& node1, Node*& node2)

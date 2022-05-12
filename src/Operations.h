@@ -9,9 +9,9 @@ class Operation
 public:
 
 	//! Creates and inserts a node to a given tree
-	static Node* insert(Node*& root, Allocator& allocator, int _value);
+	static Node* BSTinsert(Node*& root, Allocator& allocator, int _value, Colour colour = Colour::RED);
 	//! After inserting, rotates or recoulours the tree to be in correct state
-	static void fixInsertion(Node* current, Node*& root);
+	static void balancedInsert(Node*& root, Allocator& allocator, int _value);
 	//! Erases a node from the tree
 	static void erase(Node*& root, Allocator& allocator, int key);
 	//! Checks if the tree contains a certain node
