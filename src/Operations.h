@@ -6,7 +6,7 @@
 #include "Logger.h"
 class Operation
 {
-
+	static std::shared_ptr<Logger> fileLogger;
 public:
 
 	//! Creates and inserts a node to a given tree

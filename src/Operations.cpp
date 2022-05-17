@@ -1,5 +1,7 @@
 #include "Operations.h"
 
+std::shared_ptr<Logger> Operation::fileLogger = Logger::getInstance();
+
 Node* Operation::BSTinsert(Node*& root, Allocator& allocator, int _value, Colour colour)
 {
 	if (!root) {
@@ -8,10 +10,10 @@ Node* Operation::BSTinsert(Node*& root, Allocator& allocator, int _value, Colour
 	}
 	
 	Node* parent = insertRec(_value, root);
-	
+
 	// If temp is nullptr then a node with that value is found (not allowing multiple nodes with the same value)
 	if (!parent) {
-		fileLogger->warn("Trying to add a node with the same value as another node ({0})", _value);
+		fileLogger->warn("Trying to add a node with the same value as another node: " + std::to_string(_value));
 		throw std::logic_error("Cannot add multiple nodes with the same value!\n");
 		return nullptr;
 	}
@@ -64,7 +66,7 @@ void Operation::erase(Node*& root, Allocator& allocator, int key)
 {
 	Node* toDel = find(root, key);
 	if (!toDel) {
-		fileLogger->warn("Trying to delete non-existing node {0}", key);
+		fileLogger->warn("Trying to delete non-existing node: " + std::to_string(key));
 		throw std::logic_error("There is not a node with that value in the tree!\n");
 		return;
 	}
@@ -142,11 +144,11 @@ void Operation::redSibling(Node*& sibling)
 	std::swap(sibling->colour, sibling->parent->colour);
 
 	if (sibling->isRightChild()) {
-		fileLogger->trace("Executing LEFT rotation on node with value {0}", sibling->value);
+		fileLogger->trace("Executing LEFT rotation on node with value: " + std::to_string(sibling->value));
 		Rotation::left(sibling);
 	}
 	else {
-		fileLogger->trace("Executing LEFT rotation on node with value {0}", sibling->value);
+		fileLogger->trace("Executing LEFT rotation on node with value: " + std::to_string(sibling->value));
 		Rotation::right(sibling);
 	}
 }
@@ -170,12 +172,12 @@ void Operation::nearChildIsRed(Node*& sibling)
 
 	if (sibling->isRightChild()) {
 		std::swap(sibling->colour, sibling->left->colour);
-		fileLogger->trace("Executing RIGHT rotation on node with value {0}", sibling->left->value);
+		fileLogger->trace("Executing RIGHT rotation on node with value: " + std::to_string(sibling->left->value));
 		Rotation::right(sibling->left);
 	}
 	else {
 		std::swap(sibling->colour, sibling->right->colour);
-		fileLogger->trace("Executing left rotation on node with value {0}", sibling->right->value);
+		fileLogger->trace("Executing left rotation on node with value: " + std::to_string(sibling->right->value));
 		Rotation::left(sibling->right);
 	}
 }
@@ -188,12 +190,12 @@ void Operation::farChildIsRed(Node*& sibling)
 
 	if (sibling->isRightChild()) {
 		sibling->right->colour = Colour::BLACK;
-		fileLogger->trace("Executing LEFT rotation on node with value {0}", sibling->value);
+		fileLogger->trace("Executing LEFT rotation on node with value: " + std::to_string(sibling->value));
 		Rotation::left(sibling);
 	}
 	else {
 		sibling->left->colour = Colour::BLACK;
-		fileLogger->trace("Executing RIGHT rotation on node with value {0}", sibling->value);
+		fileLogger->trace("Executing RIGHT rotation on node with value: " + std::to_string(sibling->value));
 		Rotation::right(sibling);
 	}
 }
@@ -276,24 +278,24 @@ Node* Operation::rotate(Node* _node)
 {
 	Node* parent = _node->parent;
 	if (_node->isLeftChild() && parent->isLeftChild()) {
-		fileLogger->trace("Executing RIGHT rotation on node with value {0}", parent->value);
+		fileLogger->trace("Executing RIGHT rotation on node with value: " + std::to_string(parent->value));
 		Rotation::right(parent);
 		return parent;
 	}
 
 	if (_node->isRightChild() && parent->isRightChild()) {
-		fileLogger->trace("Executing LEFT rotation on node with value {0}", parent->value);
+		fileLogger->trace("Executing LEFT rotation on node with value: " + std::to_string(parent->value));
 		Rotation::left(parent);
 		return parent;
 	}
 
 	if (_node->isLeftChild() && parent->isRightChild()) {
-		fileLogger->trace("Executing RIGHT-LEFT rotation on node with value {0}", parent->value);
+		fileLogger->trace("Executing RIGHT-LEFT rotation on node with value " + std::to_string(parent->value));
 		Rotation::rightLeft(parent);
 		return _node;
 	}
 
-	fileLogger->trace("Executing LEFT-RIGHT rotation on node with value {0}", parent->value);
+	fileLogger->trace("Executing LEFT-RIGHT rotation on node with value: " + std::to_string(parent->value));
 	Rotation::leftRight(parent);
 
 	return _node;

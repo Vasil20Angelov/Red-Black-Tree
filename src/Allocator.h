@@ -5,6 +5,7 @@
 
 class Allocator
 {
+	static std::shared_ptr<Logger> fileLogger;
 public:
 	//! Creates and returns a new node
 	Node* allocate(int _value, Node* _parent = nullptr, Colour _colour = Colour::RED);

@@ -9,12 +9,13 @@ add_subdirectory(lib/Catch2)
 add_subdirectory(lib/spdlog)
 
 include_directories(src)
+include_directories(lib/spdlog/include)
 
-add_library(logger STATIC src/Logger.cpp)
-target_link_libraries(logger PUBLIC spdlog::spdlog)
+#add_library(logger STATIC )
+#arget_link_libraries(logger PUBLIC spdlog::spdlog)
 
 add_library(RBTree STATIC src/Operations.cpp src/Allocator.cpp)
-target_link_libraries(RBTree PUBLIC logger)
+#target_link_libraries(RBTree PUBLIC logger)
 
 
 add_executable(Tests)
