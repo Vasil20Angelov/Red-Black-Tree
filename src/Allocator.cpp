@@ -6,9 +6,10 @@ Node* Allocator::allocate(int _value, Node* _parent, Colour _colour)
 	try {
 		newNode = new Node(_value, _parent, _colour);
 		++allocated;
+		fileLogger->debug("Created a node with value {0}", _value);
 	}
-	catch (...) {
-		// Log it
+	catch (std::exception& e) {
+		fileLogger->error(e.what());
 	}
 
 	return newNode;
@@ -29,12 +30,13 @@ void Allocator::deAllocate(Node*& _node)
 		deletingLeft = _node->isLeftChild();
 	}
 
+	int value = _node->value;
 	delete _node;
 	_node = nullptr;
 	--allocated;
 	assert(allocated >= 0);
 	
-	// Log deleting
+	fileLogger->debug("Deleted node with value {0}", value);
 
 	if (parent) {
 		parent->nullChild(deletingLeft);

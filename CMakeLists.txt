@@ -5,12 +5,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project ("RedBlackTree")
 
+add_subdirectory(lib/Catch2)
+add_subdirectory(lib/spdlog)
+
 include_directories(src)
 
-add_library(RBTree STATIC  src/Allocator.cpp src/Operations.cpp)
+add_library(logger STATIC src/Logger.cpp)
+target_link_libraries(logger PUBLIC spdlog::spdlog)
 
-add_subdirectory(lib/spdlog)
-add_subdirectory(lib/Catch2)
+add_library(RBTree STATIC src/Operations.cpp src/Allocator.cpp)
+target_link_libraries(RBTree PUBLIC logger)
+
 
 add_executable(Tests)
 target_sources(Tests PRIVATE tests/RBT.cpp)

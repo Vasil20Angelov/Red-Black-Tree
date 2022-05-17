@@ -3,9 +3,10 @@
 #include "Node.h"
 #include "Allocator.h"
 #include "Rotation.h"
-
+#include "Logger.h"
 class Operation
 {
+
 public:
 
 	//! Creates and inserts a node to a given tree
@@ -24,15 +25,6 @@ public:
 	//! Finds the smallest element in a given tree
 	static int min(Node* root);
 
-	//! Fixes the tree in case: the node that is being erased has a red sibling
-	static void redSibling(Node*& sibling);
-	//! Fixes the tree in case: the node that is being erased has a black sibling with both children not red (black or null)
-	static void blackChildren(Node*& sibling, Node*& DB);
-	//! Fixes the tree in case: the node that is being erased has a black sibling and the near child to the node is red
-	static void nearChildIsRed(Node*& sibling);
-	//! Fixes the tree in case: the node that is being erased has a black sibling and the far child from the node is red
-	static void farChildIsRed(Node*& sibling);
-
 private:
 	
 	static Node* findMax(Node* root);
@@ -43,4 +35,13 @@ private:
 	static Node* insertRec(int _value, Node* _node);
 	static void  recolour(Node*& node1, Node*& node2);
 	static void  fixDeletion(Node*& root, Node*& node);
+
+	//! Fixes the tree in case: the node that is being erased has a red sibling
+	static void redSibling(Node*& sibling);
+	//! Fixes the tree in case: the node that is being erased has a black sibling with both children not red (black or null)
+	static void blackChildren(Node*& sibling, Node*& DB);
+	//! Fixes the tree in case: the node that is being erased has a black sibling and the near child to the node is red
+	static void nearChildIsRed(Node*& sibling);
+	//! Fixes the tree in case: the node that is being erased has a black sibling and the far child from the node is red
+	static void farChildIsRed(Node*& sibling);
 };

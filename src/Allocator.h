@@ -1,6 +1,7 @@
 #pragma once
 #include <cassert>
 #include "Node.h"
+#include "Logger.h"
 
 class Allocator
 {
@@ -13,5 +14,6 @@ public:
 	size_t getCurrentlyAllocated() const;
 
 private:
+
 	size_t allocated = 0;
 };

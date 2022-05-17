@@ -20,44 +20,17 @@ void createSimpleTree(Node*& root, Allocator& alc)
 	Node* f = alc.allocate(2, d, Colour::BLACK);
 }
 
- void createBalancedTree(Node*& root, Allocator& alc)
+ void createBalancedTree(Node*& root, Allocator& alc, const vector<int>& values)
 {
-	Operation::balancedInsert(root, alc, 10);
-	Operation::balancedInsert(root, alc, 20);
-	Operation::balancedInsert(root, alc, 5);
-	Operation::balancedInsert(root, alc, 25);
-	Operation::balancedInsert(root, alc, 30);
-	Operation::balancedInsert(root, alc, 3);
-	Operation::balancedInsert(root, alc, 1);
-	Operation::balancedInsert(root, alc, 35);
-	Operation::balancedInsert(root, alc, 32);
-	Operation::balancedInsert(root, alc, 27);
-	Operation::balancedInsert(root, alc, 29);
+	 for (int v : values)
+		 Operation::balancedInsert(root, alc, v);
 }
 
-Node*& createBSTTree(Allocator& alc, const vector<int>& values, const vector<Colour>& colours)
+void createBSTTree(Node*& root, Allocator& alc, const vector<int>& values, const vector<Colour>& colours)
 {
-	Node* root = nullptr;
 	for (int i = 0; i < values.size(); ++i) {
 		Operation::BSTinsert(root, alc, values[i], colours[i]);
 	}
-
-	return root;
-}
-
-void CreateAndCompare(Node*& root, const vector<int>& values, const vector<Colour>& colours)
-{
-	Allocator alc;
-	Node* expected = createBSTTree(alc, values, colours);
-	REQUIRE(root->compare(expected));
-	alc.deAllocate(expected);
-}
-
-void emptyTree(const RBT<>& tree)
-{
-	REQUIRE(tree.empty());
-	REQUIRE(tree.size() == 0);
-	REQUIRE(tree.getHeight() == 0);
 }
 
 void createRBTfromVector(RBT<>& tree, const vector<int>& vec)
@@ -71,6 +44,26 @@ void deleteInOrderFromRBT(RBT<>& tree, const vector<int>& vec)
 	for (int v : vec)
 		tree.erase(v);
 }
+
+void CreateAndCompare(Node*& root, const vector<int>& values, const vector<Colour>& colours)
+{
+	Allocator alc;
+	Node* expected = nullptr;
+	createBSTTree(expected, alc, values, colours);
+
+	REQUIRE(root->compare(expected));
+
+	alc.deAllocate(expected);
+}
+
+void testIsEmptyTree(const RBT<>& tree)
+{
+	REQUIRE(tree.empty());
+	REQUIRE(tree.size() == 0);
+	REQUIRE(tree.getHeight() == 0);
+}
+
+
 
 TEST_CASE("Allocator")
 {
@@ -138,7 +131,7 @@ TEST_CASE("Node")
 		REQUIRE(expected == root1->inOrderPrint());
 	}
 
-	SECTION("Compare")
+	SECTION("Comparing")
 	{
 		Allocator alc2;
 		Node* root2;
@@ -301,32 +294,26 @@ TEST_CASE("Operations")
 	Allocator alc, alc2;
 	Node* root = nullptr;
 	Node* expected = nullptr;
+	vector<int> vec{ 10, 20, 5, 25, 30, 3, 1, 35, 32, 27, 29 };
 
 	SECTION("BSTinsert")
 	{
-		Operation::BSTinsert(root, alc, 10);
-		Operation::BSTinsert(root, alc, 5);
-		Operation::BSTinsert(root, alc, 6);
-		Operation::BSTinsert(root, alc, 2);
-		Operation::BSTinsert(root, alc, 23);
-		Operation::BSTinsert(root, alc, 3);
-		Operation::BSTinsert(root, alc, 1);
-		Operation::BSTinsert(root, alc, 20);
-		Operation::BSTinsert(root, alc, 54);
+		for (int v : vec)
+			Operation::BSTinsert(root, alc, v);
 
 		SECTION("Inserting in the correct place")
 		{
-			vector<int> expected{ 1,2,3,5,6,10,20,23,54 };
+			vector<int> expected{ 1,3,5,10,20,25,27,29,30,32,35 };
 			REQUIRE(root->inOrderPrint() == expected);
 		}
 
 		SECTION("Trying to insert an existing element throws an exception")
 		{
 			REQUIRE_THROWS_AS(Operation::BSTinsert(root, alc, 10), std::logic_error);
-			REQUIRE_THROWS_AS(Operation::BSTinsert(root, alc, 2), std::logic_error);
+			REQUIRE_THROWS_AS(Operation::BSTinsert(root, alc, 29), std::logic_error);
 		}
 
-		REQUIRE(alc.getCurrentlyAllocated() == 9);
+		REQUIRE(alc.getCurrentlyAllocated() == 11);
 		alc.deAllocate(root);
 	}
 
@@ -354,7 +341,7 @@ TEST_CASE("Operations")
 
 		SECTION("New nodes are given red colour")
 		{
-			expected = createBSTTree(alc2, values, colours);
+			createBSTTree(expected, alc2, values, colours);
 
 			REQUIRE(expected->compare(root));
 			
@@ -546,8 +533,9 @@ TEST_CASE("Operations")
 		REQUIRE(alc.getCurrentlyAllocated() == 0);
 	}
 
+
 	// The same tree as in balancedInsert section
-	createBalancedTree(root, alc);
+	createBalancedTree(root, alc, vec);
 
 	SECTION("Searching")
 	{
@@ -757,7 +745,7 @@ TEST_CASE("RedBlackTree", "[RBTree]")
 {
 	RBT tree;
 
-	emptyTree(tree);
+	testIsEmptyTree(tree);
 
 	vector<int> insertInOrder { 4, 3, 2, 10, 5, 1, 0, 7, 11, 15 };
 	vector<int> expected { 0, 1, 2, 3, 4, 5, 7, 10, 11, 15 };
@@ -782,5 +770,5 @@ TEST_CASE("RedBlackTree", "[RBTree]")
 	REQUIRE(tree.printInOrder() == expected2);
 
 	tree.clear();
-	emptyTree(tree);
+	testIsEmptyTree(tree);
 }
